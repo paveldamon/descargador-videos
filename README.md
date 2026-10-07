@@ -8,7 +8,7 @@ Aplicacion de escritorio para Windows de Pavel Damon.
 
 Abre `Instalar-Descargador.exe` y pulsa **Instalar**. Descarga la version publicada en este repositorio, verifica su SHA-256 y crea accesos directos en el escritorio y el menu Inicio. Se instala para tu usuario, sin permisos de administrador. El instalador necesita conexion a Internet.
 
-Tambien puedes descargar el **[paquete portable](https://github.com/paveldamon/descargador-videos/raw/refs/heads/main/dist/Descargador-1.0.0.zip)** y extraerlo completo.
+Tambien puedes descargar el **[paquete portable](https://github.com/paveldamon/descargador-videos/raw/refs/heads/main/dist/Descargador-1.0.1.zip)** y extraerlo completo.
 
 Abre `Descargador/Descargador.exe`, pega el enlace, elige la calidad y pulsa **Descargar**. Conserva todos los archivos de la carpeta junto al ejecutable.
 
@@ -50,3 +50,4 @@ El codigo C# del instalador esta en `Instalador/Instalador.cs`. `Instalador/Comp
 Estos componentes se descargan al usar el programa y mantienen sus respectivas licencias.
 
 © 2026 Pavel Damon
+

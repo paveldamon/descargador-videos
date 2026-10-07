@@ -62,11 +62,15 @@ try {
         Copy-Item -LiteralPath (Join-Path $RunFolder 'deno\deno.exe') -Destination (Join-Path $bin 'deno.exe') -Force
     }
     $videoUrl=Get-VideoUrl $request.url
-    if($videoUrl -ne $request.url) {Write-Log 'Enlace directo al video: se omite la lista o radio de YouTube.'}
+    if($videoUrl -ne $request.url) {Write-Log 'Preparando el enlace directo del reproductor.'}
     $null=New-Item -ItemType Directory -Force -Path $request.folder
     $arguments=@('--ignore-config','--no-playlist','--newline','--no-colors','--windows-filenames','--trim-filenames','160','--no-overwrites','--ffmpeg-location',$bin,'--js-runtimes',('deno:'+(Join-Path $bin 'deno.exe')),'-P',$request.folder,'-o','%(title)s [%(id)s].%(ext)s')
     $arguments+=@('--socket-timeout','15','--extractor-retries','2','--retries','3','--concurrent-fragments','4','--progress-delta','0.5','--cache-dir',(Join-Path $PSScriptRoot 'cache'))
     $arguments+=@(Get-FormatOptions ([int]$request.quality))
+    if(([Uri]$videoUrl).DnsSafeHost -eq 'player.vimeo.com') {
+        $arguments+=@('--referer',$request.url,'--extractor-args','vimeo:original_format_policy=never')
+        Write-Log 'Usando el reproductor de Vimeo con el acceso incluido en el enlace.'
+    }
     $manifest=Join-Path $RunFolder 'downloaded-files.jsonl'
     $arguments+=@('--print-to-file','after_move:%(filepath)j',$manifest)
     $arguments+=@('--',$videoUrl)

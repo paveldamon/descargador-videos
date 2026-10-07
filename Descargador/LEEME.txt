@@ -1,6 +1,10 @@
 DESCARGADOR DE VIDEOS - Windows 10/11 de 64 bits
 
 VERSION OPTIMIZADA
+Version 1.0.1: los enlaces individuales de Vimeo usan su reproductor
+directo y conservan el codigo de acceso de los enlaces no listados.
+No se importan cookies ni contrasenas. Los videos que realmente exigen
+autenticacion o tienen restricciones siguen sujetos a ellas.
 Si falla la resolucion del nombre del sitio (DNS), se intenta una vez
 con IPv4. Si persiste, se muestra el problema de conexion correctamente.
 No se cambian los servidores DNS ni la configuracion de red del equipo.
