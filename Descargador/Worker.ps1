@@ -10,10 +10,24 @@ $bin=Join-Path $PSScriptRoot 'bin'
 $null=New-Item -ItemType Directory -Force -Path $bin
 function Write-Log($message) {Add-Content -LiteralPath $log -Value $message -Encoding UTF8}
 function Fetch($url,$target) {
+    $address=[Uri]$url
+    if($address.Scheme -ne 'https' -or $address.DnsSafeHost -ne 'github.com' -or $address.UserInfo) {throw 'Origen de componente no permitido.'}
     $part=$target+'.part'
     $client=New-Object Net.WebClient
     $client.Headers.Add('User-Agent','Descargador-Windows')
     try {$client.DownloadFile($url,$part); Move-Item -LiteralPath $part -Destination $target -Force} finally {$client.Dispose()}
+}
+function Fetch-VerifiedAsset($repository,$releasePath,$assetName,$target) {
+    if($repository -notin @('yt-dlp/FFmpeg-Builds','denoland/deno')) {throw 'Repositorio de componente no permitido.'}
+    $release=Invoke-RestMethod ('https://api.github.com/repos/'+$repository+'/releases/'+$releasePath)
+    $assets=@($release.assets | Where-Object name -eq $assetName)
+    if($assets.Count -ne 1 -or $assets[0].digest -notmatch '^sha256:([a-fA-F0-9]{64})$') {throw 'El proveedor no publico una verificacion SHA-256. No se instalara el componente.'}
+    $expected=$Matches[1]
+    $asset=$assets[0]
+    $address=[Uri]$asset.browser_download_url
+    if($address.Scheme -ne 'https' -or $address.Host -ne 'github.com' -or -not $address.AbsolutePath.StartsWith('/'+$repository+'/releases/download/',[StringComparison]::Ordinal)) {throw 'Direccion de componente no permitida.'}
+    Fetch $asset.browser_download_url $target
+    if((Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ne $expected) {throw 'El componente descargado fue alterado o esta incompleto. Instalacion detenida.'}
 }
 function Install-Engine {
     Write-Log 'Preparando yt-dlp desde su repositorio oficial...'
@@ -39,15 +53,16 @@ try {
     if(-not (Test-Path (Join-Path $bin 'ffmpeg.exe')) -or -not (Test-Path (Join-Path $bin 'ffprobe.exe'))) {
         Write-Log 'Preparando FFmpeg para unir video y audio. Puede tardar varios minutos...'
         $archive=Join-Path $RunFolder 'ffmpeg.zip'
-        Fetch 'https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip' $archive
+        Fetch-VerifiedAsset 'yt-dlp/FFmpeg-Builds' 'tags/latest' 'ffmpeg-master-latest-win64-gpl.zip' $archive
         $extract=Join-Path $RunFolder 'ffmpeg'
         # Extract only the two executables, not the full archive and documentation.
         Add-Type -AssemblyName System.IO.Compression.FileSystem
         $zip=[IO.Compression.ZipFile]::OpenRead($archive)
         try {
             foreach($name in @('ffmpeg.exe','ffprobe.exe')) {
-                $entry=$zip.Entries | Where-Object Name -eq $name | Select-Object -First 1
-                if(-not $entry) {throw "Falta $name en el paquete descargado."}
+                $entries=@($zip.Entries | Where-Object Name -eq $name)
+                if($entries.Count -ne 1 -or $entries[0].Length -gt 400MB) {throw "Archivo no valido: $name."}
+                $entry=$entries[0]
                 $staged=Join-Path $RunFolder $name
                 [IO.Compression.ZipFileExtensions]::ExtractToFile($entry,$staged,$true)
                 Move-Item -LiteralPath $staged -Destination (Join-Path $bin $name) -Force
@@ -57,9 +72,16 @@ try {
     if(-not (Test-Path (Join-Path $bin 'deno.exe'))) {
         Write-Log 'Preparando Deno para sitios que necesitan JavaScript...'
         $archive=Join-Path $RunFolder 'deno.zip'
-        Fetch 'https://github.com/denoland/deno/releases/latest/download/deno-x86_64-pc-windows-msvc.zip' $archive
-        Expand-Archive -LiteralPath $archive -DestinationPath (Join-Path $RunFolder 'deno') -Force
-        Copy-Item -LiteralPath (Join-Path $RunFolder 'deno\deno.exe') -Destination (Join-Path $bin 'deno.exe') -Force
+        Fetch-VerifiedAsset 'denoland/deno' 'latest' 'deno-x86_64-pc-windows-msvc.zip' $archive
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        $zip=[IO.Compression.ZipFile]::OpenRead($archive)
+        try {
+            $entries=@($zip.Entries | Where-Object FullName -eq 'deno.exe')
+            if($entries.Count -ne 1 -or $entries[0].Length -gt 200MB) {throw 'El paquete Deno no es valido.'}
+            $staged=Join-Path $RunFolder 'deno.exe'
+            [IO.Compression.ZipFileExtensions]::ExtractToFile($entries[0],$staged,$true)
+            Move-Item -LiteralPath $staged -Destination (Join-Path $bin 'deno.exe') -Force
+        } finally {$zip.Dispose()}
     }
     $videoUrl=Get-VideoUrl $request.url
     if($videoUrl -ne $request.url) {Write-Log 'Preparando el enlace directo del reproductor.'}
@@ -67,6 +89,7 @@ try {
     $arguments=@('--ignore-config','--no-playlist','--newline','--no-colors','--windows-filenames','--trim-filenames','160','--no-overwrites','--ffmpeg-location',$bin,'--js-runtimes',('deno:'+(Join-Path $bin 'deno.exe')),'-P',$request.folder,'-o','%(title)s [%(id)s].%(ext)s')
     $arguments+=@('--socket-timeout','15','--extractor-retries','2','--retries','3','--concurrent-fragments','4','--progress-delta','0.5','--cache-dir',(Join-Path $PSScriptRoot 'cache'))
     $arguments+=@(Get-FormatOptions ([int]$request.quality))
+    $arguments+=@('--no-plugin-dirs')
     if(([Uri]$videoUrl).DnsSafeHost -eq 'player.vimeo.com') {
         $arguments+=@('--referer',$request.url,'--extractor-args','vimeo:original_format_policy=never')
         Write-Log 'Usando el reproductor de Vimeo con el acceso incluido en el enlace.'

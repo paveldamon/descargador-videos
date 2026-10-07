@@ -16,6 +16,13 @@ public sealed class PackageInfo {
 }
 
 public static class Installation {
+    public const string TrustedPackageSha256 = "a176be83e788f41fb2c65e7486b7b5d7e03984ecbe6ae8d03f079ae538dcaa69";
+    public static void ValidatePackage(PackageInfo info) {
+        if(info == null || info.version != "1.0.2" ||
+           info.packageUrl != "https://raw.githubusercontent.com/paveldamon/descargador-videos/main/dist/Descargador-1.0.2.zip" ||
+           !string.Equals(info.sha256,TrustedPackageSha256,StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException("Este paquete no esta autorizado por este instalador. Descarga un instalador nuevo desde la fuente de confianza.");
+    }
     public static readonly string[] Required = { "Abrir.cmd", "CrearLogo.ps1", "Descargador.exe", "Descargador.ps1", "Enlaces.ps1", "Iniciar.cs", "LEEME.txt", "Logo.ico", "Logo.png", "Video.ps1", "Worker.ps1" };
 
     public static void VerifyHash(string archive, string expected) {
@@ -131,6 +138,7 @@ public sealed class InstallerWindow : Form {
                 progress.Style=ProgressBarStyle.Marquee;
                 string json=await client.DownloadStringTaskAsync(new Uri(ManifestUrl+"?v="+DateTime.UtcNow.Ticks));
                 var info=new JavaScriptSerializer().Deserialize<PackageInfo>(json);
+                Installation.ValidatePackage(info);
                 Uri packageUri;
                 if(info==null || !Uri.TryCreate(info.packageUrl,UriKind.Absolute,out packageUri) || packageUri.Scheme!="https" || packageUri.Host!="raw.githubusercontent.com" || !packageUri.AbsolutePath.StartsWith("/paveldamon/descargador-videos/main/dist/",StringComparison.Ordinal) || string.IsNullOrEmpty(info.sha256))
                     throw new InvalidDataException("La informacion de GitHub no es valida.");
@@ -171,4 +179,3 @@ public sealed class InstallerWindow : Form {
     }
     [STAThread] public static void Main() { Application.EnableVisualStyles(); Application.Run(new InstallerWindow()); }
 }
-

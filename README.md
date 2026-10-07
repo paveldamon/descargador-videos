@@ -8,7 +8,7 @@ Aplicacion de escritorio para Windows de Pavel Damon.
 
 Abre `Instalar-Descargador.exe` y pulsa **Instalar**. Descarga la version publicada en este repositorio, verifica su SHA-256 y crea accesos directos en el escritorio y el menu Inicio. Se instala para tu usuario, sin permisos de administrador. El instalador necesita conexion a Internet.
 
-Tambien puedes descargar el **[paquete portable](https://github.com/paveldamon/descargador-videos/raw/refs/heads/main/dist/Descargador-1.0.1.zip)** y extraerlo completo.
+Tambien puedes descargar el **[paquete portable](https://github.com/paveldamon/descargador-videos/raw/refs/heads/main/dist/Descargador-1.0.2.zip)** y extraerlo completo.
 
 Abre `Descargador/Descargador.exe`, pega el enlace, elige la calidad y pulsa **Descargar**. Conserva todos los archivos de la carpeta junto al ejecutable.
 
@@ -51,3 +51,7 @@ Estos componentes se descargan al usar el programa y mantienen sus respectivas l
 
 © 2026 Pavel Damon
 
+
+## Protecciones de la version 1.0.2
+
+Consulta [SECURITY.md](SECURITY.md). El instalador valida un hash autorizado incrustado; para nuevas versiones descarga un instalador nuevo de confianza. Esto no reemplaza al antivirus ni protege un instalador que ya fue modificado. Las nuevas descargas de FFmpeg y Deno requieren verificacion SHA-256 del proveedor.

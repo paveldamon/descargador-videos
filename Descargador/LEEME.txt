@@ -1,6 +1,10 @@
 DESCARGADOR DE VIDEOS - Windows 10/11 de 64 bits
 
 VERSION OPTIMIZADA
+Version 1.0.2: comprobacion SHA-256 de nuevas descargas de FFmpeg y Deno,
+extraccion limitada a ejecutables esperados y complementos deshabilitados.
+El instalador 1.0.2 solo acepta el paquete autorizado dentro de su codigo.
+Las futuras versiones requieren un instalador nuevo de confianza.
 Version 1.0.1: los enlaces individuales de Vimeo usan su reproductor
 directo y conservan el codigo de acceso de los enlaces no listados.
 No se importan cookies ni contrasenas. Los videos que realmente exigen
