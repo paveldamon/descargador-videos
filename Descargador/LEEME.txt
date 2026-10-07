@@ -1,0 +1,67 @@
+DESCARGADOR DE VIDEOS - Windows 10/11 de 64 bits
+
+VERSION OPTIMIZADA
+Si falla la resolucion del nombre del sitio (DNS), se intenta una vez
+con IPv4. Si persiste, se muestra el problema de conexion correctamente.
+No se cambian los servidores DNS ni la configuracion de red del equipo.
+Actualizacion para redes sociales: acepta videos con audio integrado,
+videos silenciosos y formatos sin datos de codec o resolucion. Esto
+corrige el rechazo de formatos de Instagram por filtros demasiado
+estrictos. Se conserva la verificacion y conversion final a MP4.
+Facebook, Instagram, TikTok y otras redes usan los extractores de yt-dlp.
+Su disponibilidad depende del enlace y de las restricciones del sitio.
+Esta version no inicia sesion ni accede a publicaciones privadas.
+
+Si ya tenias la version anterior, cierra el programa y copia los archivos
+de esta version sobre la MISMA carpeta. Conserva bin, cache y Descargas:
+asi no vuelves a instalar componentes. El ZIP no incluye esos componentes.
+
+Los enlaces de videos de YouTube se convierten en enlaces directos sin
+lista ni radio. Las conexiones que no responden tienen un tiempo de
+espera de 15 segundos por operacion y reintentos limitados. Los videos
+fragmentados usan hasta cuatro descargas simultaneas. La interfaz indica
+la etapa actual y el tiempo transcurrido.
+La instalacion inicial y la respuesta del sitio aun pueden tardar.
+
+1. Extrae toda la carpeta y abre Descargador.exe con doble clic.
+   Como alternativa puedes abrir Abrir.cmd.
+2. Pega el enlace de un video.
+3. Elige la calidad y la carpeta de destino.
+4. Pulsa Descargar. Luego usa Abrir carpeta para ver el archivo.
+
+La primera descarga prepara yt-dlp, FFmpeg y Deno desde sus repositorios
+de GitHub. Necesitas Internet y espacio libre. No requiere Python ni
+permisos de administrador. Conserva todos los archivos de esta carpeta.
+
+La descarga normal produce MP4 con video H.264 y audio AAC. Se prefieren
+los formatos compatibles disponibles para evitar conversiones; su
+resolucion puede ser menor que la de otros formatos del mismo video.
+Si hace falta convertir, puede tardar mas y se conserva el original.
+MP3 solo se genera al elegir explicitamente Solo audio MP3 (sin video).
+Antes de confirmar una descarga de video se verifica su pista de video.
+La calidad depende del video original. Descarga un video por enlace;
+no descarga listas completas. Cancelar conserva fragmentos para reanudar.
+
+COMPATIBILIDAD
+Ningun programa funciona con todas las paginas. Algunos sitios bloquean
+las descargas o requieren iniciar sesion; esta version no importa cuentas
+ni cookies del navegador. No descifra contenido protegido con DRM.
+Utiliza contenido propio o para el que tengas autorizacion de descarga.
+Si un sitio deja de funcionar, prueba Actualizar motor.
+
+Los enlaces se envian al sitio de origen y sus proveedores de video.
+Los componentes se descargan de GitHub. No hay un servidor intermediario
+de esta aplicacion. El registro local puede contener el enlace del video.
+Los registros y paquetes temporales quedan en work; puedes borrar su
+contenido con la aplicacion cerrada si deseas liberar espacio.
+
+COMPONENTES Y DOCUMENTACION
+yt-dlp: https://github.com/yt-dlp/yt-dlp
+Sitios: https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md
+FFmpeg: https://github.com/yt-dlp/FFmpeg-Builds
+Deno: https://github.com/denoland/deno
+Cada componente conserva su propia licencia en su proyecto de origen.
+
+El codigo de la interfaz esta en Descargador.ps1 y la descarga en
+Worker.ps1. Abrir.cmd inicia la interfaz sin cambiar la configuracion
+permanente de PowerShell del equipo.
