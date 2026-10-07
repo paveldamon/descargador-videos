@@ -126,9 +126,10 @@ public sealed class InstallerWindow : Form {
             ServicePointManager.SecurityProtocol=SecurityProtocolType.Tls12;
             using(client=new WebClient()) {
                 client.Headers.Add("User-Agent","PavelDamon-Instalador/1.0");
+                client.CachePolicy=new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore);
                 status.Text="Consultando la version disponible en GitHub...";
                 progress.Style=ProgressBarStyle.Marquee;
-                string json=await client.DownloadStringTaskAsync(new Uri(ManifestUrl));
+                string json=await client.DownloadStringTaskAsync(new Uri(ManifestUrl+"?v="+DateTime.UtcNow.Ticks));
                 var info=new JavaScriptSerializer().Deserialize<PackageInfo>(json);
                 Uri packageUri;
                 if(info==null || !Uri.TryCreate(info.packageUrl,UriKind.Absolute,out packageUri) || packageUri.Scheme!="https" || packageUri.Host!="raw.githubusercontent.com" || !packageUri.AbsolutePath.StartsWith("/paveldamon/descargador-videos/main/dist/",StringComparison.Ordinal) || string.IsNullOrEmpty(info.sha256))
@@ -153,7 +154,7 @@ public sealed class InstallerWindow : Form {
                     Installation.Shortcut(destination,Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory));
                     Installation.Shortcut(destination,Environment.GetFolderPath(Environment.SpecialFolder.Programs));
                 } catch { shortcutNote=" No se pudo crear algun acceso directo."; }
-                status.Text="Instalacion completada."+shortcutNote;
+                status.Text="Version "+info.version+" instalada."+shortcutNote;
                 progress.Style=ProgressBarStyle.Continuous; progress.Value=100;
                 open.Visible=true; install.Text="Reinstalar";
             }
@@ -170,3 +171,4 @@ public sealed class InstallerWindow : Form {
     }
     [STAThread] public static void Main() { Application.EnableVisualStyles(); Application.Run(new InstallerWindow()); }
 }
+
